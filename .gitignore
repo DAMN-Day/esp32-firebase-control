@@ -1,7 +1,8 @@
 # Ignorar el archivo de configuración del ESP32
-**/ esp32_code/config.h
+**/esp32_code/config.h
 
-**/ Public/config.json
+# Ignorar el archivo de configuración web
+**/public/config.js
 
 # Ignorar carpetas de librerías o temporales
 .vscode/
