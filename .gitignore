@@ -2,7 +2,7 @@
 **/esp32_code/config.h
 
 # Ignorar el archivo de configuración web
-**/public/config.js
+**/public/config.json
 
 # Ignorar carpetas de librerías o temporales
 .vscode/
