@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control IoT - 2 Relays</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #1a1a1a; color: white; text-align: center; padding: 20px; }
+        .card { background: #2d2d2d; border-radius: 15px; padding: 20px; max-width: 500px; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .relay-sector { border: 1px solid #444; margin: 15px 0; padding: 10px; border-radius: 10px; }
+        .btn { border: none; color: white; padding: 12px 20px; text-align: center; font-size: 14px; margin: 5px; cursor: pointer; border-radius: 8px; transition: 0.3s; width: 40%; font-weight: bold; }
+        .btn-on { background-color: #2ecc71; }
+        .btn-off { background-color: #e74c3c; }
+        .btn:active { transform: translateY(2px); }
+        
+        #log-container { margin-top: 30px; text-align: left; background: #333; padding: 15px; border-radius: 10px; height: 250px; overflow-y: auto; }
+        .log-item { border-bottom: 1px solid #444; padding: 8px 0; font-size: 12px; color: #bbb; }
+        .status-on { color: #2ecc71; font-weight: bold; }
+        .status-off { color: #e74c3c; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>Control IoT Multi-Relay</h2>
+        
+        <div class="relay-sector">
+            <p>RELAY 1: <span id="st-r1">Cargando...</span></p>
+            <button class="btn btn-on" onclick="controlarRelay(1, 1)">ENCENDER R1</button>
+            <button class="btn btn-off" onclick="controlarRelay(1, 0)">APAGAR R1</button>
+        </div>
+
+        <div class="relay-sector">
+            <p>RELAY 2: <span id="st-r2">Cargando...</span></p>
+            <button class="btn btn-on" onclick="controlarRelay(2, 1)">ENCENDER R2</button>
+            <button class="btn btn-off" onclick="controlarRelay(2, 0)">APAGAR R2</button>
+        </div>
+
+        <div id="log-container">
+            <strong>Historial de Actividad:</strong>
+            <div id="lista-logs"></div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAL4PnFvD-4k-M4ea9ZfllJw0pZkvsZHmI",
+            authDomain: "database-16ba6.firebaseapp.com",
+            databaseURL: "https://database-16ba6-default-rtdb.firebaseio.com",
+            projectId: "database-16ba6"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Función unificada para ambos relays
+        function controlarRelay(num, valor) {
+            const ruta = num === 1 ? 'dispositivo1/estado' : 'dispositivo1/estado2';
+            const etiqueta = num === 1 ? 'R1' : 'R2';
+            const accion = valor === 1 ? 'ENCENDIDO' : 'APAGADO';
+
+            // 1. Actualizar Firebase
+            database.ref(ruta).set(valor);
+
+            // 2. Guardar Log
+            database.ref('historial').push({
+                evento: `${etiqueta} ${accion}`,
+                fecha: new Date().toLocaleString(),
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+        }
+
+        // Escuchar Relay 1
+        database.ref('dispositivo1/estado').on('value', (snapshot) => {
+            const val = snapshot.val();
+            const el = document.getElementById('st-r1');
+            el.innerText = val === 1 ? "ON" : "OFF";
+            el.className = val === 1 ? "status-on" : "status-off";
+        });
+
+        // Escuchar Relay 2
+        database.ref('dispositivo1/estado2').on('value', (snapshot) => {
+            const val = snapshot.val();
+            const el = document.getElementById('st-r2');
+            el.innerText = val === 1 ? "ON" : "OFF";
+            el.className = val === 1 ? "status-on" : "status-off";
+        });
+
+        // Historial (últimos 15 movimientos)
+        database.ref('historial').orderByChild('timestamp').limitToLast(15).on('value', (snapshot) => {
+            const logLista = document.getElementById('lista-logs');
+            logLista.innerHTML = "";
+            const logs = [];
+            snapshot.forEach(child => { logs.push(child.val()); });
+            logs.reverse().forEach(log => {
+                const item = document.createElement('div');
+                item.className = "log-item";
+                item.innerHTML = `<strong>${log.fecha}</strong> - ${log.evento}`;
+                logLista.appendChild(item);
+            });
+        });
+    </script>
+</body>
+</html>
