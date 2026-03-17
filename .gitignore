@@ -1,0 +1,13 @@
+# Ignorar el archivo de configuración del ESP32
+**/ esp32_code/config.h
+
+**/ Public/config.json
+
+# Ignorar carpetas de librerías o temporales
+.vscode/
+build/
+node_modules/
+
+# Ignorar archivos del sistema
+.DS_Store
+Thumbs.db

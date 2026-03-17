@@ -1,12 +1,7 @@
 #include <WiFi.h>
 #include <FirebaseESP32.h>
+#include <config.h>
 
-// --- DATOS DE CONEXIÓN ---
-#define WIFI_SSID "TP-Link_B770"
-#define WIFI_PASSWORD "TU-CLAVE-WIFI"  // Reemplaza con tu contraseña Wi-Fi
-#define FIREBASE_HOST "https://database-16ba6-default-rtdb.firebaseio.com" 
-#define API_KEY "TU-API-KEY"  // Reemplaza con tu API Key de Firebase
-#define FIREBASE_SECRET "TU-FIREBASE-SECRET"  // Reemplaza con tu Firebase Secret
 
 FirebaseData fbdo;
 FirebaseAuth auth;
